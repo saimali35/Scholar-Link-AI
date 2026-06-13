@@ -1,0 +1,13 @@
+{
+  "name": "scholarlink-ai",
+  "version": "1.0.0",
+  "description": "ScholarLink AI - Modern, AI-powered scholarship discovery and tracking platform",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node server/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
