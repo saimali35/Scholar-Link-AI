@@ -261,7 +261,7 @@
       }
       // Global Callback actions
       window.handleDetails = (id) => {
-        localStorage.setItem('selectedScholarshipId', id);
+        DB.setSelectedScholarshipId(id);
         window.location.href = "scholarship-details.html";
       };
       window.toggleRemove = (id) => {

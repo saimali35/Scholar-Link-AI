@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
   eligibilityFilter.addEventListener('change', applyFiltersAndSort);
   // Global callbacks
   window.handleDetails = (id) => {
-    localStorage.setItem('selectedScholarshipId', id);
+    DB.setSelectedScholarshipId(id);
     window.location.href = "scholarship-details.html";
   };
   window.toggleSave = (id) => {

@@ -1,5 +1,31 @@
 // ScholarLink AI Mock Database Layer
-// Handles state persistence in localStorage
+// Handles state persistence through the Express backend JSON database.
+const ServerStore = {
+  request(method, key, value) {
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, `/api/store/${encodeURIComponent(key)}`, false);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(value === undefined ? null : JSON.stringify({ value }));
+
+    if (xhr.status < 200 || xhr.status >= 300) {
+      throw new Error(`Database request failed: ${method} ${key}`);
+    }
+
+    return xhr.responseText ? JSON.parse(xhr.responseText) : null;
+  },
+  getItem(key) {
+    const response = this.request("GET", key);
+    return response && response.value !== null ? JSON.stringify(response.value) : null;
+  },
+  setItem(key, serializedValue) {
+    this.request("PUT", key, JSON.parse(serializedValue));
+  },
+  removeItem(key) {
+    this.request("DELETE", key);
+  }
+};
+window.ServerStore = ServerStore;
+
 const DEFAULT_SCHOLARSHIPS = [
   {
     id: "sch-1",
@@ -420,36 +446,36 @@ const DEFAULT_ROADMAP_TASKS = [
 ];
 // Database Utilities
 const DB = {
-  // Initialize localStorage with default values if empty
+  // Initialize backend storage with default values if empty
   init() {
-    if (!localStorage.getItem("scholarships")) {
-      localStorage.setItem("scholarships", JSON.stringify(DEFAULT_SCHOLARSHIPS));
+    if (!ServerStore.getItem("scholarships")) {
+      ServerStore.setItem("scholarships", JSON.stringify(DEFAULT_SCHOLARSHIPS));
     }
-    if (!localStorage.getItem("notifications")) {
-      localStorage.setItem("notifications", JSON.stringify(DEFAULT_NOTIFICATIONS));
+    if (!ServerStore.getItem("notifications")) {
+      ServerStore.setItem("notifications", JSON.stringify(DEFAULT_NOTIFICATIONS));
     }
-    if (!localStorage.getItem("roadmapTasks")) {
-      localStorage.setItem("roadmapTasks", JSON.stringify(DEFAULT_ROADMAP_TASKS));
+    if (!ServerStore.getItem("roadmapTasks")) {
+      ServerStore.setItem("roadmapTasks", JSON.stringify(DEFAULT_ROADMAP_TASKS));
     }
-    if (!localStorage.getItem("savedScholarships")) {
-      localStorage.setItem("savedScholarships", JSON.stringify([]));
+    if (!ServerStore.getItem("savedScholarships")) {
+      ServerStore.setItem("savedScholarships", JSON.stringify([]));
     }
-    if (!localStorage.getItem("applications")) {
-      localStorage.setItem("applications", JSON.stringify([]));
+    if (!ServerStore.getItem("applications")) {
+      ServerStore.setItem("applications", JSON.stringify([]));
     }
-    if (!localStorage.getItem("chatHistory")) {
-      localStorage.setItem("chatHistory", JSON.stringify([
+    if (!ServerStore.getItem("chatHistory")) {
+      ServerStore.setItem("chatHistory", JSON.stringify([
         { role: "assistant", content: "Hello! I am your ScholarLink AI assistant. How can I help you today? You can ask me about eligibility criteria, document requirements, or help with drafting essays!", timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
       ]));
     }
   },
   // Profile management
   getProfile() {
-    const profile = localStorage.getItem("studentProfile");
+    const profile = ServerStore.getItem("studentProfile");
     return profile ? JSON.parse(profile) : null;
   },
   saveProfile(profileData) {
-    localStorage.setItem("studentProfile", JSON.stringify(profileData));
+    ServerStore.setItem("studentProfile", JSON.stringify(profileData));
     // Trigger notification
     this.addNotification({
       type: "system",
@@ -461,16 +487,22 @@ const DB = {
   // Scholarships management
   getScholarships() {
     this.init();
-    return JSON.parse(localStorage.getItem("scholarships"));
+    return JSON.parse(ServerStore.getItem("scholarships"));
   },
   getScholarshipById(id) {
     const scholarships = this.getScholarships();
     return scholarships.find(s => s.id === id) || null;
   },
+  getSelectedScholarshipId() {
+    return JSON.parse(ServerStore.getItem("selectedScholarshipId") || "null");
+  },
+  setSelectedScholarshipId(id) {
+    ServerStore.setItem("selectedScholarshipId", JSON.stringify(id));
+  },
   // Saved/Applied states
   getSavedScholarshipIds() {
     this.init();
-    return JSON.parse(localStorage.getItem("savedScholarships"));
+    return JSON.parse(ServerStore.getItem("savedScholarships"));
   },
   toggleSaveScholarship(id) {
     const savedIds = this.getSavedScholarshipIds();
@@ -494,12 +526,12 @@ const DB = {
         time: "Just now"
       });
     }
-    localStorage.setItem("savedScholarships", JSON.stringify(savedIds));
+    ServerStore.setItem("savedScholarships", JSON.stringify(savedIds));
     return saved;
   },
   getApplications() {
     this.init();
-    return JSON.parse(localStorage.getItem("applications"));
+    return JSON.parse(ServerStore.getItem("applications"));
   },
   applyForScholarship(id) {
     const apps = this.getApplications();
@@ -510,7 +542,7 @@ const DB = {
         status: "Applied",
         dateApplied: new Date().toISOString().split('T')[0]
       });
-      localStorage.setItem("applications", JSON.stringify(apps));
+      ServerStore.setItem("applications", JSON.stringify(apps));
       // Remove from saved if present, but keep application
       this.addNotification({
         type: "new",
@@ -525,7 +557,7 @@ const DB = {
   removeApplication(id) {
     let apps = this.getApplications();
     apps = apps.filter(a => a.scholarshipId !== id);
-    localStorage.setItem("applications", JSON.stringify(apps));
+    ServerStore.setItem("applications", JSON.stringify(apps));
     return true;
   },
   // Calculations: Calculate Matching Score & Eligibility
@@ -615,7 +647,7 @@ const DB = {
   // Notifications
   getNotifications() {
     this.init();
-    return JSON.parse(localStorage.getItem("notifications"));
+    return JSON.parse(ServerStore.getItem("notifications"));
   },
   addNotification(notif) {
     const list = this.getNotifications();
@@ -625,24 +657,24 @@ const DB = {
       ...notif
     };
     list.unshift(newNotif);
-    localStorage.setItem("notifications", JSON.stringify(list));
+    ServerStore.setItem("notifications", JSON.stringify(list));
   },
   markAllNotificationsRead() {
     const list = this.getNotifications();
     list.forEach(n => n.read = true);
-    localStorage.setItem("notifications", JSON.stringify(list));
+    ServerStore.setItem("notifications", JSON.stringify(list));
   },
   // Roadmap tasks
   getRoadmapTasks() {
     this.init();
-    return JSON.parse(localStorage.getItem("roadmapTasks"));
+    return JSON.parse(ServerStore.getItem("roadmapTasks"));
   },
   toggleRoadmapTask(id) {
     const tasks = this.getRoadmapTasks();
     const t = tasks.find(x => x.id === id);
     if (t) {
       t.completed = !t.completed;
-      localStorage.setItem("roadmapTasks", JSON.stringify(tasks));
+      ServerStore.setItem("roadmapTasks", JSON.stringify(tasks));
       
       this.addNotification({
         type: "system",
@@ -664,13 +696,13 @@ const DB = {
       completed: false
     };
     tasks.push(newTask);
-    localStorage.setItem("roadmapTasks", JSON.stringify(tasks));
+    ServerStore.setItem("roadmapTasks", JSON.stringify(tasks));
     return newTask;
   },
   // Chat/AI assistant history
   getChatHistory() {
     this.init();
-    return JSON.parse(localStorage.getItem("chatHistory"));
+    return JSON.parse(ServerStore.getItem("chatHistory"));
   },
   addChatMessage(role, content) {
     const history = this.getChatHistory();
@@ -679,13 +711,14 @@ const DB = {
       content,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     });
-    localStorage.setItem("chatHistory", JSON.stringify(history));
+    ServerStore.setItem("chatHistory", JSON.stringify(history));
   },
   clearChatHistory() {
-    localStorage.removeItem("chatHistory");
+    ServerStore.removeItem("chatHistory");
     this.init();
   }
 };
 // Initialize DB immediately
 DB.init();
 window.DB = DB;
+

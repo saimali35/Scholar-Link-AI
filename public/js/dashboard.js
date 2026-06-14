@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   // Global callback functions
   window.handleDetails = (id) => {
-    localStorage.setItem('selectedScholarshipId', id);
+    DB.setSelectedScholarshipId(id);
     window.location.href = "scholarship-details.html";
   };
   window.toggleSave = (id) => {
