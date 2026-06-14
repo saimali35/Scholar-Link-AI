@@ -168,22 +168,30 @@ app.delete('/api/store/:key', async (req, res) => {
   }
 });
 
-// Serve static files from the public directory
+// Serve static files from public folder
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Catch-all route to redirect back to index.html or handle default behaviors
-app.use((req, res) => {
+// Home page
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
-initStore().then(() => {
-  app.listen(PORT, () => {
-    console.log(`========================================================`);
-    console.log(` ScholarLink AI Server is running locally!`);
-    console.log(` Access your frontend at: http://localhost:${PORT}`);
-    console.log(` Database: ${databaseUrl ? 'MySQL' : dbPath}`);
-    console.log(`========================================================`);
-  });
-}).catch((error) => {
-  console.error('Failed to initialize database:', error);
-  process.exit(1);
+
+// Catch-all route
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
+
+initStore()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log('========================================================');
+      console.log('ScholarLink AI Server is running!');
+      console.log(`Access your app at: http://localhost:${PORT}`);
+      console.log(`Database: ${databaseUrl ? 'MySQL' : dbPath}`);
+      console.log('========================================================');
+    });
+  })
+  .catch((error) => {
+    console.error('Failed to initialize database:', error);
+    process.exit(1);
+  });
