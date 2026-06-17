@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScholarLink AI - Chatbot Assistant</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandBlue: '#3b82f6',
+            brandPurple: '#8b5cf6',
+            darkBg: '#0b0f19',
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-darkBg text-[#f3f4f6] min-h-screen flex flex-col md:flex-row">
+  <!-- Sidebar Navigation -->
+  <aside id="sidebar" class="w-full md:w-64 bg-[#090c14] border-r border-white/5 flex flex-col justify-between p-6 shrink-0 md:sticky md:top-0 md:h-screen">
+    <div>
+      <div class="flex items-center justify-between mb-8">
+        <a href="index.html" class="flex items-center space-x-3">
+          <div class="bg-gradient-to-tr from-brandBlue to-brandPurple p-2 rounded-xl">
+            <i class="fa-solid fa-graduation-cap text-white text-lg"></i>
+          </div>
+          <span class="text-lg font-bold tracking-tight text-white">ScholarLink<span class="text-indigo-400">AI</span></span>
+        </a>
+        <button id="sidebar-close-btn" class="md:hidden text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <nav class="space-y-1">
+        <a href="dashboard.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-gauge w-5 text-center"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="scholarships.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-award w-5 text-center"></i>
+          <span>Scholarships</span>
+        </a>
+        <a href="saved.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-bookmark w-5 text-center"></i>
+          <span>Saved Items</span>
+        </a>
+        <a href="roadmap.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-map-location-dot w-5 text-center"></i>
+          <span>Roadmap</span>
+        </a>
+        <a href="notifications.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-bell w-5 text-center"></i>
+          <span>Notifications</span>
+        </a>
+        <a href="ai-assistant.html" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-robot w-5 text-center"></i>
+          <span>AI Assistant</span>
+        </a>
+        <a href="profile.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-user w-5 text-center"></i>
+          <span>Profile Setup</span>
+        </a>
+      </nav>
+    </div>
+    <div class="mt-8 border-t border-white/5 pt-4">
+      <button onclick="Auth.logout()" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-950/20 hover:text-red-300 font-medium text-sm transition">
+        <i class="fa-solid fa-right-from-bracket w-5 text-center"></i>
+        <span>Logout</span>
+      </button>
+    </div>
+  </aside>
+  <!-- Main Content Panel -->
+  <div class="flex-grow flex flex-col min-w-0 h-screen">
+    <!-- Top Header -->
+    <header class="py-4 px-6 md:px-8 border-b border-white/5 flex items-center justify-between bg-[#0b0f19]/80 backdrop-blur-md sticky top-0 z-30 shrink-0">
+      <div class="flex items-center space-x-4">
+        <button id="sidebar-toggle-btn" class="md:hidden text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-bars"></i></button>
+        <h1 class="text-xl md:text-2xl font-extrabold text-white">AI Counselor Assistant</h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <button id="clear-chat-btn" class="text-xs text-gray-500 hover:text-white transition">Clear chat history</button>
+        <div class="hidden sm:flex flex-col text-right">
+          <span id="user-display-name" class="text-sm font-semibold text-white">Loading...</span>
+          <span id="user-display-email" class="text-xs text-gray-500 font-medium">student@scholarlink.ai</span>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-brandBlue to-brandPurple flex items-center justify-center font-bold text-white shadow-md shadow-indigo-500/20">
+          <span id="user-avatar-initials">S</span>
+        </div>
+      </div>
+    </header>
+    <!-- Main Container (flex grow to fill screen, overflow hidden to allow scroll only inside chat box) -->
+    <main class="flex-grow flex flex-col p-4 md:p-6 min-h-0 bg-[#0c101b] max-w-5xl w-full mx-auto">
+      
+      <!-- Top Suggested Prompts Grid -->
+      <div class="shrink-0 mb-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <button onclick="sendSuggested('How does the AI matching score work?')" class="p-3 bg-indigo-950/20 border border-white/5 hover:border-indigo-500/25 rounded-xl text-left text-xs transition">
+          <div class="font-bold text-white mb-0.5">Algorithm Checks</div>
+          <span class="text-gray-400">"How does matching score work?"</span>
+        </button>
+        <button onclick="sendSuggested('What documents do I need for my application?')" class="p-3 bg-indigo-950/20 border border-white/5 hover:border-indigo-500/25 rounded-xl text-left text-xs transition">
+          <div class="font-bold text-white mb-0.5">Required Documents</div>
+          <span class="text-gray-400">"What documents do I need?"</span>
+        </button>
+        <button onclick="sendSuggested('Give me details about the Google Scholarship')" class="p-3 bg-indigo-950/20 border border-white/5 hover:border-indigo-500/25 rounded-xl text-left text-xs transition">
+          <div class="font-bold text-white mb-0.5">Google Scholarship Intakes</div>
+          <span class="text-gray-400">"Tell me about the Google Grant"</span>
+        </button>
+      </div>
+      <!-- Chat Output Box (overflow-y-auto to allow scroll) -->
+      <div id="chat-messages-container" class="flex-grow glass-panel border border-white/5 rounded-3xl p-4 md:p-6 overflow-y-auto space-y-6 mb-4 flex flex-col justify-end">
+        <div id="chat-scroller" class="space-y-6 overflow-y-auto w-full pr-1">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+      <!-- Chat Input Area (shrink-0) -->
+      <div class="shrink-0">
+        <form id="chat-form" class="flex items-center gap-3">
+          <div class="relative flex-grow">
+            <input type="text" id="chat-input" required placeholder="Ask about criteria, deadlines, essay outlines..." class="w-full pl-4 pr-12 py-4 rounded-2xl glass-input text-sm focus:outline-none">
+            <button type="button" onclick="alert('Voice recognition simulation: Speak your inquiry now!')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-500 hover:text-white transition">
+              <i class="fa-solid fa-microphone"></i>
+            </button>
+          </div>
+          <button type="submit" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold p-4 rounded-2xl transition shadow-lg shadow-indigo-600/20">
+            <i class="fa-solid fa-paper-plane text-lg"></i>
+          </button>
+        </form>
+      </div>
+    </main>
+  </div>
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Protect Page
+      Auth.protectPage();
+      const currentUser = Auth.getCurrentUser();
+      const profile = DB.getProfile();
+      // Populate Header User Info
+      if (currentUser) {
+        document.getElementById('user-display-name').textContent = currentUser.name;
+        document.getElementById('user-display-email').textContent = currentUser.email;
+        
+        const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        document.getElementById('user-avatar-initials').textContent = initials;
+      }
+      const chatScroller = document.getElementById('chat-scroller');
+      const chatInput = document.getElementById('chat-input');
+      const chatForm = document.getElementById('chat-form');
+      const clearChatBtn = document.getElementById('clear-chat-btn');
+      // Clear chat history
+      clearChatBtn.addEventListener('click', () => {
+        if (confirm("Are you sure you want to clear your conversation history with ScholarLink AI?")) {
+          DB.clearChatHistory();
+          renderHistory();
+        }
+      });
+      // Load & Render history
+      function renderHistory() {
+        chatScroller.innerHTML = '';
+        const history = DB.getChatHistory();
+        history.forEach(msg => {
+          const isUser = msg.role === 'user';
+          
+          const wrapper = document.createElement('div');
+          wrapper.className = `flex ${isUser ? 'justify-end' : 'justify-start'} w-full`;
+          const avatarColor = isUser ? 'from-blue-600 to-indigo-600' : 'from-indigo-600 to-purple-600';
+          const avatarIcon = isUser ? '<i class="fa-solid fa-user text-xs text-white"></i>' : '<i class="fa-solid fa-robot text-xs text-indigo-200"></i>';
+          const senderName = isUser ? 'You' : 'ScholarLink AI';
+          wrapper.innerHTML = `
+            <div class="flex items-start space-x-3 max-w-[85%] sm:max-w-[70%]">
+              ${!isUser ? `
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr ${avatarColor} flex items-center justify-center shrink-0 shadow-md">
+                  ${avatarIcon}
+                </div>
+              ` : ''}
+              <div class="space-y-1">
+                <div class="flex items-baseline space-x-2">
+                  <span class="text-[10px] font-bold text-gray-400">${senderName}</span>
+                  <span class="text-[9px] text-gray-500 font-mono">${msg.timestamp}</span>
+                </div>
+                <div class="${isUser ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-none' : 'bg-slate-900 border border-white/5 text-gray-300 rounded-2xl rounded-tl-none'} p-3.5 text-xs leading-relaxed">
+                  ${msg.content.replace(/\n/g, '<br>')}
+                </div>
+              </div>
+              ${isUser ? `
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr ${avatarColor} flex items-center justify-center shrink-0 shadow-md">
+                  ${avatarIcon}
+                </div>
+              ` : ''}
+            </div>
+          `;
+          chatScroller.appendChild(wrapper);
+        });
+        // Scroll to bottom
+        chatScroller.scrollTop = chatScroller.scrollHeight;
+      }
+      // Input Submit
+      chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = chatInput.value.trim();
+        if (!text) return;
+        // 1. Save and display user message
+        DB.addChatMessage('user', text);
+        chatInput.value = '';
+        renderHistory();
+        // 2. Compute a smart reply based on query matching
+        setTimeout(() => {
+          let reply = '';
+          const cleanText = text.toLowerCase();
+          if (cleanText.includes('eligibility') || cleanText.includes('score') || cleanText.includes('match')) {
+            reply = `Our AI matching engine evaluates several parameters in your profile against scholarship criteria:
+            1. **Family Income**: Many scholarships have max caps (e.g. Savitribai Phule is under ₹6L, Reliance is under ₹15L).
+            2. **Grades**: Academic criteria (GPA/%) must be above thresholds (e.g. Google requires 75% / 7.5 CGPA).
+            3. **Domicile State**: Scholarships may be restricted by state (e.g. Karnataka SSP requires Karnataka residency).
+            4. **Gender & Minorities**: Special focus groups get preference or exclusive slots.
+            You can modify these fields anytime in your **Profile Setup** to immediately recalculate matches!`;
+          } 
+          else if (cleanText.includes('google') || cleanText.includes('generation')) {
+            reply = `The **Google Generation Scholarship (Asia Pacific)** awards **₹1,80,000** for tuition. 
+            **Key Criteria**:
+            - Female student (or diversity pass) enrolled full-time in computer science B.Tech/B.Sc.
+            - Minimum GPA of 7.5 or 75%.
+            - Requires essay answers answering leadership, diversity, and technology aspirations.
+            - **Deadline**: September 15, 2026. Make sure to check the Details Page to link and apply!`;
+          } 
+          else if (cleanText.includes('reliance')) {
+            reply = `The **Reliance Foundation Undergraduate Scholarship** offers up to **₹2,00,000** for full-time UG degrees.
+            **Key Criteria**:
+            - Open to all UG fields (Engineering, Commerce, Science, Arts).
+            - Minimum 60% in Standard 12.
+            - Family income must be under ₹15,00,000.
+            - **Selection Process**: Complete a brief online aptitude test (cognitive skills, verbal logic) followed by interviews.
+            - **Deadline**: October 30, 2026.`;
+          } 
+          else if (cleanText.includes('document') || cleanText.includes('certificate') || cleanText.includes('file')) {
+            reply = `Here is a list of the most commonly requested documents for applications:
+            - **Academic Proof**: 10th, 12th mark sheets, and current college semester transcripts.
+            - **Identity Proof**: Aadhaar Card, PAN Card, or Passport.
+            - **Income Proof**: Parent income certificate issued by Tehsildar or government authorities (usually valid for current financial year).
+            - **Domicile Certificate**: Domicile certificate validating your residency state.
+            - **Category Proof**: Valid SC/ST/OBC certificate (if applicable).
+            We recommend collecting scans in your **Roadmap Preparation checklist**!`;
+          } 
+          else if (cleanText.includes('essay') || cleanText.includes('sop') || cleanText.includes('statement')) {
+            reply = `Writing a great Statement of Purpose (SOP) or scholarship essay is critical. Here are 3 tips:
+            1. **Connect your goals**: Explicitly link the scholarship benefits to your study goals (e.g. 'This ₹1,80,000 Google grant will allow me to purchase technical gear for machine learning projects').
+            2. **Be specific on leadership**: Describe a project or activity where you solved a problem for a community or group.
+            3. **Address financial need**: Don't shy away from explaining how your family income bracket creates hurdles, and how the grant alleviates them.`;
+          } 
+          else if (cleanText.includes('deadline') || cleanText.includes('date') || cleanText.includes('close')) {
+            reply = `Here are upcoming critical deadlines sorted by date:
+            - **Tata Cornell scholarship**: June 30, 2026
+            - **Minority Scholarships (NMMSS)**: July 20 & 25, 2026
+            - **Savitribai Phule (Girls)**: August 15, 2026
+            - **SC Post-Matric**: August 31, 2026
+            - **Google Generation**: September 15, 2026
+            - **NTPC (Disabled)**: October 15, 2026
+            - **Reliance Foundation**: October 30, 2026
+            Track these on your **Dashboard** or add them to your monthly timeline tracker!`;
+          } 
+          else {
+            reply = `Thanks for your inquiry! I can assist you with:
+            - Detail summaries for **Google**, **Reliance**, or state scholarships.
+            - Listing required **documents** (Income Certificate, Domicile, transcripts).
+            - Explaining **AI matching score** metrics.
+            - Outlining scholarship **deadlines** or helping you write **essays**.
+            Please type in a search query or select one of the suggested prompts above!`;
+          }
+          DB.addChatMessage('assistant', reply);
+          renderHistory();
+        }, 1000);
+      });
+      // Handle Suggested prompt clicks
+      window.sendSuggested = (promptText) => {
+        chatInput.value = promptText;
+        chatForm.dispatchEvent(new Event('submit'));
+      };
+      // Initial Render
+      renderHistory();
+      // Responsive Sidebar Menu Toggle Handler
+      const sidebar = document.getElementById('sidebar');
+      const toggleBtn = document.getElementById('sidebar-toggle-btn');
+      const closeBtn = document.getElementById('sidebar-close-btn');
+      if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', () => {
+          sidebar.classList.remove('hidden');
+          sidebar.classList.add('fixed', 'inset-y-0', 'left-0', 'z-50');
+        });
+      }
+      if (closeBtn && sidebar) {
+        closeBtn.addEventListener('click', () => {
+          sidebar.classList.add('hidden');
+          sidebar.classList.remove('fixed', 'inset-y-0', 'left-0', 'z-50');
+        });
+      }
+    });
+  </script>
+</body>
+</html>

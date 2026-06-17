@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScholarLink AI - Notification Center</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandBlue: '#3b82f6',
+            brandPurple: '#8b5cf6',
+            darkBg: '#0b0f19',
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-darkBg text-[#f3f4f6] min-h-screen flex flex-col md:flex-row">
+  <!-- Sidebar Navigation -->
+  <aside id="sidebar" class="w-full md:w-64 bg-[#090c14] border-r border-white/5 flex flex-col justify-between p-6 shrink-0 md:sticky md:top-0 md:h-screen">
+    <div>
+      <div class="flex items-center justify-between mb-8">
+        <a href="index.html" class="flex items-center space-x-3">
+          <div class="bg-gradient-to-tr from-brandBlue to-brandPurple p-2 rounded-xl">
+            <i class="fa-solid fa-graduation-cap text-white text-lg"></i>
+          </div>
+          <span class="text-lg font-bold tracking-tight text-white">ScholarLink<span class="text-indigo-400">AI</span></span>
+        </a>
+        <button id="sidebar-close-btn" class="md:hidden text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <nav class="space-y-1">
+        <a href="dashboard.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-gauge w-5 text-center"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="scholarships.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-award w-5 text-center"></i>
+          <span>Scholarships</span>
+        </a>
+        <a href="saved.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-bookmark w-5 text-center"></i>
+          <span>Saved Items</span>
+        </a>
+        <a href="roadmap.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-map-location-dot w-5 text-center"></i>
+          <span>Roadmap</span>
+        </a>
+        <a href="notifications.html" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-bell w-5 text-center"></i>
+          <span>Notifications</span>
+        </a>
+        <a href="ai-assistant.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-robot w-5 text-center"></i>
+          <span>AI Assistant</span>
+        </a>
+        <a href="profile.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-user w-5 text-center"></i>
+          <span>Profile Setup</span>
+        </a>
+      </nav>
+    </div>
+    <div class="mt-8 border-t border-white/5 pt-4">
+      <button onclick="Auth.logout()" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-950/20 hover:text-red-300 font-medium text-sm transition">
+        <i class="fa-solid fa-right-from-bracket w-5 text-center"></i>
+        <span>Logout</span>
+      </button>
+    </div>
+  </aside>
+  <!-- Main Content Panel -->
+  <div class="flex-grow flex flex-col min-w-0">
+    <!-- Top Header -->
+    <header class="py-4 px-6 md:px-8 border-b border-white/5 flex items-center justify-between bg-[#0b0f19]/80 backdrop-blur-md sticky top-0 z-30">
+      <div class="flex items-center space-x-4">
+        <button id="sidebar-toggle-btn" class="md:hidden text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-bars"></i></button>
+        <h1 class="text-xl md:text-2xl font-extrabold text-white">Notification Center</h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <div class="hidden sm:flex flex-col text-right">
+          <span id="user-display-name" class="text-sm font-semibold text-white">Loading...</span>
+          <span id="user-display-email" class="text-xs text-gray-500">student@scholarlink.ai</span>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-brandBlue to-brandPurple flex items-center justify-center font-bold text-white shadow-md shadow-indigo-500/20">
+          <span id="user-avatar-initials">S</span>
+        </div>
+      </div>
+    </header>
+    <!-- Main Container -->
+    <main class="flex-grow p-6 md:p-8 space-y-6 max-w-4xl w-full mx-auto">
+      
+      <!-- Mark all read and Filter tab controls -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4">
+        <div class="flex space-x-3">
+          <button id="tab-all" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition">All Alerts</button>
+          <button id="tab-deadline" class="px-3.5 py-1.5 bg-slate-900 border border-white/5 text-gray-400 hover:text-white text-xs font-bold rounded-xl transition">Deadlines</button>
+          <button id="tab-system" class="px-3.5 py-1.5 bg-slate-900 border border-white/5 text-gray-400 hover:text-white text-xs font-bold rounded-xl transition">System</button>
+        </div>
+        <button id="mark-read-btn" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-envelope-open"></i>
+          <span>Mark all as read</span>
+        </button>
+      </div>
+      <!-- Notifications container list -->
+      <section id="notifications-list" class="space-y-4">
+        <!-- Dynamically rendered -->
+      </section>
+    </main>
+  </div>
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Protect Page
+      Auth.protectPage();
+      const currentUser = Auth.getCurrentUser();
+      // Populate Header User Info
+      if (currentUser) {
+        document.getElementById('user-display-name').textContent = currentUser.name;
+        document.getElementById('user-display-email').textContent = currentUser.email;
+        
+        const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+        document.getElementById('user-avatar-initials').textContent = initials;
+      }
+      const listContainer = document.getElementById('notifications-list');
+      const markReadBtn = document.getElementById('mark-read-btn');
+      
+      const tabAll = document.getElementById('tab-all');
+      const tabDeadline = document.getElementById('tab-deadline');
+      const tabSystem = document.getElementById('tab-system');
+      let currentFilter = 'all';
+      // Tab Events
+      function setActiveTab(activeBtn, otherBtns, filterVal) {
+        currentFilter = filterVal;
+        activeBtn.className = "px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition";
+        otherBtns.forEach(btn => {
+          btn.className = "px-3.5 py-1.5 bg-slate-900 border border-white/5 text-gray-400 hover:text-white text-xs font-bold rounded-xl transition";
+        });
+        renderNotifications();
+      }
+      tabAll.addEventListener('click', () => setActiveTab(tabAll, [tabDeadline, tabSystem], 'all'));
+      tabDeadline.addEventListener('click', () => setActiveTab(tabDeadline, [tabAll, tabSystem], 'deadline'));
+      tabSystem.addEventListener('click', () => setActiveTab(tabSystem, [tabAll, tabDeadline], 'system'));
+      // Mark All Read
+      markReadBtn.addEventListener('click', () => {
+        DB.markAllNotificationsRead();
+        renderNotifications();
+      });
+      // Render Loop
+      function renderNotifications() {
+        listContainer.innerHTML = '';
+        let list = DB.getNotifications();
+        if (currentFilter !== 'all') {
+          list = list.filter(n => n.type === currentFilter);
+        }
+        if (list.length === 0) {
+          listContainer.innerHTML = `
+            <div class="glass-panel p-16 text-center text-gray-500 rounded-3xl border border-white/5">
+              <i class="fa-regular fa-bell-slash text-4xl mb-4 text-gray-600"></i>
+              <p class="text-base font-semibold text-white">No notifications in this filter</p>
+              <p class="text-sm text-gray-400 mt-1">Check back later for active recommendations or deadline updates.</p>
+            </div>
+          `;
+          return;
+        }
+        list.forEach(notif => {
+          // Icon mapping
+          let icon = '<i class="fa-solid fa-bell text-indigo-400 text-lg"></i>';
+          let iconBg = 'bg-indigo-500/10 border-indigo-500/20';
+          if (notif.type === 'deadline') {
+            icon = '<i class="fa-solid fa-clock text-yellow-500 text-lg"></i>';
+            iconBg = 'bg-yellow-500/10 border-yellow-500/20';
+          } else if (notif.type === 'new') {
+            icon = '<i class="fa-solid fa-wand-magic-sparkles text-emerald-400 text-lg"></i>';
+            iconBg = 'bg-emerald-500/10 border-emerald-500/20';
+          } else if (notif.type === 'system') {
+            icon = '<i class="fa-solid fa-circle-info text-blue-400 text-lg"></i>';
+            iconBg = 'bg-blue-500/10 border-blue-500/20';
+          }
+          const card = document.createElement('div');
+          card.className = `glass-panel p-5 rounded-2xl border ${notif.read ? 'border-white/5 opacity-70' : 'border-indigo-500/10'} flex items-start space-x-4 relative transition`;
+          
+          card.innerHTML = `
+            <div class="w-11 h-11 shrink-0 rounded-xl ${iconBg} border flex items-center justify-center">
+              ${icon}
+            </div>
+            <div class="flex-grow min-w-0 space-y-1">
+              <div class="flex items-center justify-between gap-4">
+                <h4 class="text-sm font-bold ${notif.read ? 'text-gray-300' : 'text-white'} truncate">${notif.title}</h4>
+                <span class="text-[10px] text-gray-500 font-medium shrink-0 font-mono">${notif.time}</span>
+              </div>
+              <p class="text-xs text-gray-400 leading-relaxed">${notif.message}</p>
+            </div>
+            ${!notif.read ? `<span class="w-2.5 h-2.5 rounded-full bg-indigo-500 absolute top-5 right-5" title="Unread alert"></span>` : ''}
+          `;
+          listContainer.appendChild(card);
+        });
+      }
+      // Initial Render
+      renderNotifications();
+      // Responsive Sidebar Menu Toggle Handler
+      const sidebar = document.getElementById('sidebar');
+      const toggleBtn = document.getElementById('sidebar-toggle-btn');
+      const closeBtn = document.getElementById('sidebar-close-btn');
+      if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', () => {
+          sidebar.classList.remove('hidden');
+          sidebar.classList.add('fixed', 'inset-y-0', 'left-0', 'z-50');
+        });
+      }
+      if (closeBtn && sidebar) {
+        closeBtn.addEventListener('click', () => {
+          sidebar.classList.add('hidden');
+          sidebar.classList.remove('fixed', 'inset-y-0', 'left-0', 'z-50');
+        });
+      }
+    });
+  </script>
+</body>
+</html>

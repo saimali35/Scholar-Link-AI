@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScholarLink AI - Profile Setup</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandBlue: '#3b82f6',
+            brandPurple: '#8b5cf6',
+            darkBg: '#0b0f19',
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-darkBg text-[#f3f4f6] min-h-screen flex flex-col md:flex-row">
+  <!-- Sidebar Navigation (shared for internal pages) -->
+  <aside id="sidebar" class="w-full md:w-64 bg-[#090c14] border-r border-white/5 flex flex-col justify-between p-6 shrink-0 md:sticky md:top-0 md:h-screen">
+    <div>
+      <div class="flex items-center justify-between mb-8">
+        <a href="index.html" class="flex items-center space-x-3">
+          <div class="bg-gradient-to-tr from-brandBlue to-brandPurple p-2 rounded-xl">
+            <i class="fa-solid fa-graduation-cap text-white text-lg"></i>
+          </div>
+          <span class="text-lg font-bold tracking-tight text-white">ScholarLink<span class="text-indigo-400">AI</span></span>
+        </a>
+        <button id="sidebar-close-btn" class="md:hidden text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <nav class="space-y-1">
+        <a href="dashboard.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-gauge w-5 text-center"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="scholarships.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-award w-5 text-center"></i>
+          <span>Scholarships</span>
+        </a>
+        <a href="saved.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-bookmark w-5 text-center"></i>
+          <span>Saved Items</span>
+        </a>
+        <a href="roadmap.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-map-location-dot w-5 text-center"></i>
+          <span>Roadmap</span>
+        </a>
+        <a href="notifications.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-bell w-5 text-center"></i>
+          <span>Notifications</span>
+        </a>
+        <a href="ai-assistant.html" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-robot w-5 text-center"></i>
+          <span>AI Assistant</span>
+        </a>
+        <a href="profile.html" class="sidebar-link active flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-400 hover:text-white font-medium text-sm">
+          <i class="fa-solid fa-user w-5 text-center"></i>
+          <span>Profile Setup</span>
+        </a>
+      </nav>
+    </div>
+    <div class="mt-8 border-t border-white/5 pt-4">
+      <button onclick="Auth.logout()" class="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-950/20 hover:text-red-300 font-medium text-sm transition">
+        <i class="fa-solid fa-right-from-bracket w-5 text-center"></i>
+        <span>Logout</span>
+      </button>
+    </div>
+  </aside>
+  <!-- Main Content Panel -->
+  <div class="flex-grow flex flex-col min-w-0">
+    <!-- Top Header -->
+    <header class="py-4 px-6 md:px-8 border-b border-white/5 flex items-center justify-between bg-[#0b0f19]/80 backdrop-blur-md sticky top-0 z-30">
+      <div class="flex items-center space-x-4">
+        <button id="sidebar-toggle-btn" class="md:hidden text-gray-400 hover:text-white text-xl"><i class="fa-solid fa-bars"></i></button>
+        <h1 class="text-xl md:text-2xl font-extrabold text-white">Profile Setup</h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <div class="hidden sm:flex flex-col text-right">
+          <span id="user-display-name" class="text-sm font-semibold text-white">Loading...</span>
+          <span id="user-display-email" class="text-xs text-gray-500">student@scholarlink.ai</span>
+        </div>
+        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-brandBlue to-brandPurple flex items-center justify-center font-bold text-white shadow-md shadow-indigo-500/20">
+          <span id="user-avatar-initials">S</span>
+        </div>
+      </div>
+    </header>
+    <!-- Main Container -->
+    <main class="flex-grow p-6 md:p-8 max-w-4xl mx-auto w-full">
+      <div class="glass-panel rounded-3xl p-6 md:p-8 border border-white/10 shadow-2xl relative overflow-hidden">
+        <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold text-white mb-2">Student Demographics & Academics</h2>
+          <p class="text-gray-400 text-sm">Please fill out this form accurately. Our AI algorithm matching criteria evaluates this exact state data to calculate your personalized eligibility percentage.</p>
+        </div>
+        <div id="success-alert" class="hidden bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-sm rounded-xl p-4 mb-6 flex items-center space-x-3">
+          <i class="fa-solid fa-circle-check text-lg"></i>
+          <span>Your profile has been saved successfully! Redirecting to dashboard...</span>
+        </div>
+        <form id="profile-form" class="space-y-8">
+          
+          <!-- Section 1: Personal Details -->
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400 border-b border-white/5 pb-2 mb-4">1. Personal Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label for="fullName" class="block text-xs font-semibold text-gray-400 mb-2">Full Name</label>
+                <input type="text" id="fullName" required class="w-full p-3 rounded-xl glass-input text-sm" placeholder="John Doe">
+              </div>
+              <div>
+                <label for="age" class="block text-xs font-semibold text-gray-400 mb-2">Age</label>
+                <input type="number" id="age" required min="15" max="35" class="w-full p-3 rounded-xl glass-input text-sm" placeholder="20">
+              </div>
+              <div>
+                <label for="gender" class="block text-xs font-semibold text-gray-400 mb-2">Gender</label>
+                <select id="gender" class="w-full p-3 rounded-xl glass-input text-sm">
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <!-- Section 2: Domicile & Location -->
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400 border-b border-white/5 pb-2 mb-4">2. Domicile Details</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="state" class="block text-xs font-semibold text-gray-400 mb-2">State Domicile</label>
+                <select id="state" class="w-full p-3 rounded-xl glass-input text-sm">
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Delhi">Delhi</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="West Bengal">West Bengal</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Other">Other States</option>
+                </select>
+              </div>
+              <div>
+                <label for="email-field" class="block text-xs font-semibold text-gray-400 mb-2">Email Address (Read-Only)</label>
+                <input type="email" id="email-field" readonly class="w-full p-3 rounded-xl glass-input text-sm opacity-50 cursor-not-allowed">
+              </div>
+            </div>
+          </div>
+          <!-- Section 3: Academic Record -->
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400 border-b border-white/5 pb-2 mb-4">3. Academic Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="collegeName" class="block text-xs font-semibold text-gray-400 mb-2">College / Institution Name</label>
+                <input type="text" id="collegeName" required class="w-full p-3 rounded-xl glass-input text-sm" placeholder="Indian Institute of Technology">
+              </div>
+              <div>
+                <label for="course" class="block text-xs font-semibold text-gray-400 mb-2">Course / Stream</label>
+                <select id="course" class="w-full p-3 rounded-xl glass-input text-sm">
+                  <option value="B.Tech">B.Tech / B.E.</option>
+                  <option value="M.Tech">M.Tech / M.E.</option>
+                  <option value="B.Sc">B.Sc (Sciences)</option>
+                  <option value="M.Sc">M.Sc (Sciences)</option>
+                  <option value="B.Com">B.Com (Commerce)</option>
+                  <option value="MBA">MBA (Management)</option>
+                  <option value="BCA">BCA</option>
+                  <option value="MCA">MCA</option>
+                  <option value="High School">High School (11th/12th)</option>
+                  <option value="Diploma">Diploma Program</option>
+                </select>
+              </div>
+              <div>
+                <label for="currentYear" class="block text-xs font-semibold text-gray-400 mb-2">Current Year of Study</label>
+                <select id="currentYear" class="w-full p-3 rounded-xl glass-input text-sm">
+                  <option value="1st Year">1st Year</option>
+                  <option value="2nd Year">2nd Year</option>
+                  <option value="3rd Year">3rd Year</option>
+                  <option value="4th Year">4th Year</option>
+                </select>
+              </div>
+              <div>
+                <label for="cgpa" class="block text-xs font-semibold text-gray-400 mb-2">Academic Score (Percentage % or CGPA on a scale of 10)</label>
+                <input type="number" step="0.01" id="cgpa" required min="0" max="100" class="w-full p-3 rounded-xl glass-input text-sm" placeholder="e.g. 8.5 or 85">
+              </div>
+            </div>
+          </div>
+          <!-- Section 4: Category & Financials -->
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-indigo-400 border-b border-white/5 pb-2 mb-4">4. Category & Financial Details</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="income" class="block text-xs font-semibold text-gray-400 mb-2">Annual Family Income (INR)</label>
+                <input type="number" id="income" required min="0" class="w-full p-3 rounded-xl glass-input text-sm" placeholder="e.g. 450000">
+              </div>
+              <div>
+                <label for="category" class="block text-xs font-semibold text-gray-400 mb-2">Category</label>
+                <select id="category" class="w-full p-3 rounded-xl glass-input text-sm">
+                  <option value="General">General (Unreserved)</option>
+                  <option value="OBC">OBC (Other Backward Classes)</option>
+                  <option value="SC">SC (Scheduled Caste)</option>
+                  <option value="ST">ST (Scheduled Tribe)</option>
+                  <option value="EWS">EWS (Economically Weaker Section)</option>
+                </select>
+              </div>
+              <div>
+                <label for="minority" class="block text-xs font-semibold text-gray-400 mb-2">Minority Status</label>
+                <select id="minority" class="w-full p-3 rounded-xl glass-input text-sm">
+                  <option value="No">No</option>
+                  <option value="Yes">Yes (Muslim, Christian, Sikh, Buddhist, Parsi, Jain)</option>
+                </select>
+              </div>
+              <div>
+                <label for="disability" class="block text-xs font-semibold text-gray-400 mb-2">Disability Status (Differently-Abled)</label>
+                <select id="disability" class="w-full p-3 rounded-xl glass-input text-sm">
+                  <option value="No">No</option>
+                  <option value="Yes">Yes (40% or more physical disability rating)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-600/30 hover:shadow-indigo-500/50 transform hover:-translate-y-0.5 active:translate-y-0 transition duration-150">
+            Save Profile & Compute Scholarship Matches
+          </button>
+        </form>
+      </div>
+    </main>
+  </div>
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/profile.js"></script>
+</body>
+</html>
