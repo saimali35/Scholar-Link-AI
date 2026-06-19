@@ -10,8 +10,10 @@ const PORT = process.env.PORT || 3000;
 
 const dataDir = path.join(__dirname, 'data');
 const dbPath = path.join(dataDir, 'database.json');
-const databaseUrl = process.env.DATABASE_URL;
+
 let mysqlPool = null;
+
+/* ------------------ FILE DB (fallback) ------------------ */
 
 function ensureDatabase() {
   if (!fs.existsSync(dataDir)) {
@@ -38,30 +40,35 @@ function writeDatabase(data) {
   fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
 }
 
+/* ------------------ MYSQL CONNECTION ------------------ */
+
 function getMysqlPool() {
-  if (!databaseUrl) {
+  if (!process.env.DB_HOST) {
     return null;
   }
 
   if (!mysqlPool) {
     mysqlPool = mysql.createPool({
-      uri: databaseUrl,
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      port: process.env.DB_PORT || 3306,
       waitForConnections: true,
       connectionLimit: 10,
-      namedPlaceholders: true
     });
   }
 
   return mysqlPool;
 }
 
+/* ------------------ INIT MYSQL TABLE ------------------ */
+
 async function initStore() {
   ensureDatabase();
   const pool = getMysqlPool();
 
-  if (!pool) {
-    return;
-  }
+  if (!pool) return;
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS app_store (
@@ -71,6 +78,8 @@ async function initStore() {
     )
   `);
 }
+
+/* ------------------ GET VALUE ------------------ */
 
 async function getStoreValue(key) {
   const pool = getMysqlPool();
@@ -85,14 +94,14 @@ async function getStoreValue(key) {
     [key]
   );
 
-  if (!rows.length) {
-    return null;
-  }
+  if (!rows.length) return null;
 
   return typeof rows[0].store_value === 'string'
     ? JSON.parse(rows[0].store_value)
     : rows[0].store_value;
 }
+
+/* ------------------ SET VALUE ------------------ */
 
 async function setStoreValue(key, value) {
   const pool = getMysqlPool();
@@ -114,6 +123,8 @@ async function setStoreValue(key, value) {
   return value;
 }
 
+/* ------------------ DELETE VALUE ------------------ */
+
 async function deleteStoreValue(key) {
   const pool = getMysqlPool();
 
@@ -124,19 +135,26 @@ async function deleteStoreValue(key) {
     return;
   }
 
-  await pool.execute('DELETE FROM app_store WHERE store_key = ?', [key]);
+  await pool.execute(
+    'DELETE FROM app_store WHERE store_key = ?',
+    [key]
+  );
 }
+
+/* ------------------ INIT ------------------ */
 
 ensureDatabase();
 
 app.use(express.json({ limit: '2mb' }));
+
+/* ------------------ ROUTES ------------------ */
 
 app.get('/api/health', async (req, res) => {
   try {
     await initStore();
     res.json({
       ok: true,
-      database: databaseUrl ? 'mysql' : dbPath
+      database: process.env.DB_HOST ? 'mysql' : 'file'
     });
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message });
@@ -170,26 +188,27 @@ app.delete('/api/store/:key', async (req, res) => {
   }
 });
 
-// Serve static files from public folder
+/* ------------------ STATIC FRONTEND ------------------ */
+
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Home page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-// Catch-all route
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
 });
+
+/* ------------------ START SERVER ------------------ */
 
 initStore()
   .then(() => {
     app.listen(PORT, () => {
       console.log('========================================================');
       console.log('ScholarLink AI Server is running!');
-      console.log(`Access your app at: http://localhost:${PORT}`);
-      console.log(`Database: ${databaseUrl ? 'MySQL' : dbPath}`);
+      console.log(`Port: ${PORT}`);
+      console.log(`Database: ${process.env.DB_HOST ? 'MySQL (Aiven)' : 'File DB'}`);
       console.log('========================================================');
     });
   })
